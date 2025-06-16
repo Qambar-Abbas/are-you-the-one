@@ -1,32 +1,29 @@
-import { useState } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import LoginForm from './components/LoginForm'
+import HomePage from './components/HomePage'
 
-function App() {
-  const [password, setPassword] = useState('')
+const APP_VERSION = '1.0.0'
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // TODO: handle authentication
-    console.log('Password entered:', password)
-  }
-
+export default function App() {
   return (
-    <div className="login-container">
-      <form className="login-form" onSubmit={handleSubmit}>
-        <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
-          Login
-        </h2>
-
-        <input
-          type="password"
-          placeholder="Enter password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <button type="submit">Submit</button>
-      </form>
+    <div className="app-container">
+      <div className="main-content">
+        <Routes>
+          <Route path="/" element={<LoginForm />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+      <footer
+        style={{
+          textAlign: 'center',
+          padding: '1rem 0',
+          background: 'var(--bg-color)',
+          color: 'var(--text-color)',
+        }}
+      >
+        Version: {APP_VERSION}
+      </footer>
     </div>
   )
 }
-
-export default App
