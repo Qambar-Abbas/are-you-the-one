@@ -1,0 +1,79 @@
+/* White background, black elements theme */
+:root {
+  --bg-color: #fff;
+  --text-color: #000;
+  --input-bg: #f9f9f9;
+  --input-border: #ccc;
+  --button-bg: #000;
+  --button-text: #fff;
+}
+
+/* Global resets */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  color: var(--text-color);
+  font-family: sans-serif;
+}
+
+body,
+#root {
+  height: 100vh;
+  background-color: var(--bg-color);
+}
+
+/* Center the login container */
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 1rem;
+}
+
+/* Form styling */
+.login-form {
+  background: var(--input-bg);
+  padding: 2rem;
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 360px;
+}
+
+/* Input and button */
+.login-form input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  background: var(--bg-color);
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  color: var(--text-color);
+  font-size: 1rem;
+}
+
+.login-form button {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* Responsive tweaks */
+@media (max-width: 400px) {
+  .login-form {
+    padding: 1.5rem;
+  }
+
+  .login-form input,
+  .login-form button {
+    font-size: 0.9rem;
+    padding: 0.5rem;
+  }
+}
