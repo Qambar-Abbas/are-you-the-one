@@ -2,7 +2,7 @@
   "name": "are-you-the-one",
   "homepage": "https://QambarOfficial.github.io/are-you-the-one/",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.1.2",
   "type": "module",
   "scripts": {
     "dev": "vite",

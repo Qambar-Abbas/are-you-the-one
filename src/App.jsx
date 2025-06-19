@@ -2,10 +2,10 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import LoginForm from './components/LoginForm'
 import GalleryPage from './components/GalleryPage'
 import ConversationPage from './components/ConversationPage'
+import { version as APP_VERSION } from '../package.json'
+
 
 import HomePage from './components/HomePage'
-
-const APP_VERSION = '1.1.0'
 
 export default function App() {
   return (
