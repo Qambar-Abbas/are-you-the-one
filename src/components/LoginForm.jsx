@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase'
 
-const HARD_CODED_PASSWORD = 'letmein123'
+const HARD_CODED_PASSWORD = 'batool'
 
 export default function LoginForm() {
     const [password, setPassword] = useState('')
@@ -13,38 +13,33 @@ export default function LoginForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        if (!password.trim()) return
+        const raw = password.trim()
+        if (!raw) return
 
         setLoading(true)
         setError(null)
+
+        // Determine if the entered password is correct
+        const isMatch = raw.toLowerCase() === HARD_CODED_PASSWORD.toLowerCase()
+
+        // Log exactly one attempt record, with a success flag
         const attempt = {
-            password,
+            password: raw,
             attemptedAt: serverTimestamp(),
+            success: isMatch,
         }
 
         try {
-            // Log every attempt
             await addDoc(collection(db, 'passwordAttempts'), attempt)
         } catch (err) {
             console.error('Error logging attempt:', err)
         }
 
-        if (password === HARD_CODED_PASSWORD) {
-            // Optionally log successful access
-            try {
-                await addDoc(collection(db, 'passwordAttempts'), {
-                    password,
-                    attemptedAt: serverTimestamp(),
-                    success: true,
-                })
-            } catch (err) {
-                console.error('Error logging success:', err)
-            }
-            setLoading(false)
+        setLoading(false)
+        if (isMatch) {
             navigate('/home')
         } else {
-            setLoading(false)
-            setError('Invalid password')
+            setError('Nope, that’s not it. Try again!')
         }
     }
 
@@ -54,13 +49,14 @@ export default function LoginForm() {
 
             <input
                 type="password"
-                placeholder="Enter password"
+                placeholder="You already know the password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
+                className="login-input"
             />
 
-            <button type="submit" disabled={loading}>
+            <button type="submit" disabled={loading} className="login-button">
                 {loading ? 'Processing...' : 'Submit'}
             </button>
 
