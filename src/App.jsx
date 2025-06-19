@@ -1,8 +1,11 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import LoginForm from './components/LoginForm'
+import GalleryPage from './components/GalleryPage'
+import ConversationPage from './components/ConversationPage'
+
 import HomePage from './components/HomePage'
 
-const APP_VERSION = '1.0.0'
+const APP_VERSION = '1.1.0'
 
 export default function App() {
   return (
@@ -11,6 +14,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<LoginForm />} />
           <Route path="/home" element={<HomePage />} />
+          <Route path="gallery" element={<GalleryPage />} />
+          <Route path="conversation" element={<ConversationPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
@@ -19,10 +24,12 @@ export default function App() {
           textAlign: 'center',
           padding: '1rem 0',
           background: 'var(--bg-color)',
-          color: 'var(--text-color)',
+          color: '#888',
+          fontSize: '0.85rem',
         }}
       >
-        Version: {APP_VERSION}
+        <div style={{ color: '#888' }}>Version: {APP_VERSION}</div>
+        <div style={{ color: '#888' }}>Developed by Qambar Abbas for someone very Special</div>
       </footer>
     </div>
   )
