@@ -2,11 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import './ConversationPage.css';
 import {
     sendMessageToFirebase,
-    // no longer need listenToTodayMessages…
     listenToAllConversations
 } from '../services/messageService';
 
-/** (same formatTimestamp as before) */
+/**
+ * Formats Firestore Timestamp or Date string/object into human-readable text.
+ */
 function formatTimestamp(ts) {
     let date;
     try {
@@ -45,28 +46,53 @@ export default function ConversationPage() {
     const inputRef = useRef(null);
     const bottomRef = useRef(null);
 
+    // Realistic handshake logs
+    const handshakeSteps = [
+        'Resolving DNS for api.example.com...',
+        'Connecting to 93.184.216.34:443...',
+        'Performing TLSv1.3 handshake...',
+        'Verifying server certificate...',
+        'Exchanging session keys...',
+        'Cipher suite: TLS_AES_128_GCM_SHA256',
+        'Secure channel established.'
+    ];
+    const [completedSteps, setCompletedSteps] = useState([]);
+    const [handshakeDone, setHandshakeDone] = useState(false);
+
+    // Animate handshake and flag when done
     useEffect(() => {
-        // Subscribe to *all* days’ messages
-        const unsubscribe = listenToAllConversations((messages) => {
-            const formatted = messages.map((msg) => {
+        let idx = 0;
+        const interval = setInterval(() => {
+            setCompletedSteps(prev => [...prev, handshakeSteps[idx]]);
+            idx += 1;
+            if (idx >= handshakeSteps.length) {
+                clearInterval(interval);
+                setHandshakeDone(true);
+            }
+        }, 800);
+        return () => clearInterval(interval);
+    }, []);
+
+    // Subscribe to messages only after handshake completes
+    useEffect(() => {
+        if (!handshakeDone) return;
+        const unsubscribe = listenToAllConversations(messages => {
+            const formatted = messages.map(msg => {
                 const timeStr = formatTimestamp(msg.timestamp);
-                return `<span class="username">&lt;127.0.0.1@${msg.user}&gt;</span> [${timeStr}] ${msg.text}`;
+                return `<span class=\"username\">&lt;127.0.0.1@${msg.user}&gt;</span> [${timeStr}] ${msg.text}`;
             });
             setLines(formatted);
         });
+        return () => typeof unsubscribe === 'function' && unsubscribe();
+    }, [handshakeDone]);
 
-        return () => {
-            if (typeof unsubscribe === 'function') unsubscribe();
-        };
-    }, []);
-
-    // auto‑scroll on new lines
+    // Auto-scroll on new lines
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [lines]);
 
-    // handle sending
-    const handleKeyDown = async (e) => {
+    // Handle sending
+    const handleKeyDown = async e => {
         if (e.key === 'Enter') {
             e.preventDefault();
             const message = inputRef.current?.innerText.trim();
@@ -80,56 +106,46 @@ export default function ConversationPage() {
         }
     };
 
-    const handleUserChange = (e) => {
+    const handleUserChange = e => {
         setSelectedUser(e.target.value);
         setTimeout(() => inputRef.current?.focus(), 0);
     };
 
-    const handleInputClick = () => {
-        inputRef.current?.focus();
-    };
+    const handleInputClick = () => inputRef.current?.focus();
 
     return (
         <div className="conversation-container">
             <div className="terminal">
 
-                {/* Dropdown */}
+                {/* User selector */}
                 <div className="dropdown-container">
                     <label htmlFor="user-select">User:&nbsp;</label>
-                    <select
-                        id="user-select"
-                        value={selectedUser}
-                        onChange={handleUserChange}
-                    >
+                    <select id="user-select" value={selectedUser} onChange={handleUserChange}>
                         <option value="">-- Select --</option>
                         <option value="sbfn">sbfn</option>
                         <option value="qa">qa</option>
                     </select>
                 </div>
 
-                {/* Hacker status block (white text via CSS) */}
+                {/* Dynamic hacker-status block */}
                 <div className="hacker-status">
                     <code>
-                        └─▶ Initiating TLS handshake...<br />
-                        └─ Negotiating AES-256 key exchange...<br />
-                        └─ Spawning SOCKS5 proxy at 10.0.0.5:1080...<br />
-                        └─ Validating auth token (SHA-1)...<br />
-                        Secure channel established.
+                        {completedSteps.map((line, i) => (
+                            <div key={i}>
+                                {i === 0 ? '└─▶ ' : '└─ '}{line}
+                            </div>
+                        ))}
                     </code>
                 </div>
 
-                {/* Render full history */}
-                {lines.map((line, i) => (
-                    <div
-                        key={i}
-                        className="terminal-line"
-                        dangerouslySetInnerHTML={{ __html: line }}
-                    />
+                {/* Conversation history (appears after handshake) */}
+                {handshakeDone && lines.map((line, i) => (
+                    <div key={i} className="terminal-line" dangerouslySetInnerHTML={{ __html: line }} />
                 ))}
 
                 <div className="separator-line" />
 
-                {/* Input */}
+                {/* Input area */}
                 <div className="terminal-input" onClick={handleInputClick}>
                     <span className="prompt">&gt;</span>
                     <div
@@ -139,8 +155,14 @@ export default function ConversationPage() {
                         className="terminal-editable"
                         onKeyDown={handleKeyDown}
                         spellCheck={false}
-                        style={{ opacity: selectedUser ? 1 : 0.4 }}
-                        data-placeholder={selectedUser ? '' : 'Select a user first'}
+                        style={{ opacity: selectedUser && handshakeDone ? 1 : 0.4 }}
+                        data-placeholder={
+                            !selectedUser
+                                ? 'Select a user first'
+                                : !handshakeDone
+                                    ? 'Connecting...'
+                                    : ''
+                        }
                     />
                 </div>
 

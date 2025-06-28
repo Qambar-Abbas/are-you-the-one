@@ -45,11 +45,11 @@ export default function LoginForm() {
 
     return (
         <form className="login-form" onSubmit={handleSubmit}>
-            <h2 className="login-title">Login</h2>
+            <h2 className="login-title">Don't let curiosity get better of you</h2>
 
             <input
                 type="password"
-                placeholder="You already know the password"
+                placeholder="Enter Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
